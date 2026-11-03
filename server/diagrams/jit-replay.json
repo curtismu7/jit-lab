@@ -1,0 +1,25 @@
+{
+  "schema": "diagram-studio/1",
+  "id": "jit-replay",
+  "title": "JIT vs standing: the captured credential",
+  "lede": "The agent calls a tool with a per-call credential or a long-lived one; the attacker replays the captured copy later. One is dead, one is not.",
+  "groups": {
+    "agent": { "label": "AI agent (our code)", "color": "grey" },
+    "issuer": { "label": "Ping product: authorization server", "color": "red" },
+    "api": { "label": "Tool API (resource server)", "color": "dark" },
+    "attacker": { "label": "Attacker", "color": "dark" }
+  },
+  "nodes": [
+    { "id": "agent", "group": "agent", "label": "AI agent", "sub": ["holds one credential per pattern"], "x": 0, "y": 0 },
+    { "id": "issuer", "group": "issuer", "label": "Authorization server", "sub": ["mints standing (30 d) or JIT (300 s, tool-bound)"], "x": 3, "y": 0 },
+    { "id": "api", "group": "api", "label": "Tool API", "sub": ["checks signature, audience, expiry"], "x": 6, "y": 0 },
+    { "id": "capture", "group": "attacker", "label": "Captured credential", "sub": ["copied at time T"], "x": 3, "y": 3 },
+    { "id": "replay", "group": "attacker", "label": "Replay at T + N", "sub": ["N minutes to hours later"], "x": 6, "y": 3 }
+  ],
+  "edges": [
+    { "id": "e1", "from": "agent", "to": "issuer", "label": "mint (once for standing, per call for JIT)" },
+    { "id": "e2", "from": "agent", "to": "api", "label": "call with the credential" },
+    { "id": "e3", "from": "capture", "to": "replay", "label": "wait" },
+    { "id": "e4", "from": "replay", "to": "api", "label": "replay: accepted if standing, dead if JIT" }
+  ]
+}

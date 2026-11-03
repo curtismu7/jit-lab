@@ -1,0 +1,7 @@
+{
+  "verticals": {
+    "banking": { "brand": "{{cast.brand}} Bank", "person": "{{cast.personName}}", "tools": ["{{tool.get_balance}}", "{{tool.list_transactions}}", "{{tool.transfer}}"], "captureStory": "{{cast.personName}} asks the agent to check a balance. The agent holds a standing credential issued 12 days ago. A phished copy of it works until next month." },
+    "healthcare": { "brand": "{{cast.brand}} Health", "person": "{{cast.personName}}", "tools": ["{{tool.get_balance}}", "{{tool.list_transactions}}", "{{tool.transfer}}"], "captureStory": "{{cast.personName}} asks the agent to read an appointment list. The agent holds a standing credential issued 12 days ago. A phished copy of it works until next month." },
+    "retail": { "brand": "{{cast.brand}} Retail", "person": "{{cast.personName}}", "tools": ["{{tool.get_balance}}", "{{tool.list_transactions}}", "{{tool.transfer}}"], "captureStory": "{{cast.personName}} asks the agent to pull an order history. The agent holds a standing credential issued 12 days ago. A phished copy of it works until next month." }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "demos": [
+    {
+      "id": "jit-lab",
+      "name": "JIT Ephemeral Credentials LAB",
+      "catalogId": "D112",
+      "kind": "Demo",
+      "description": "Standing vs just-in-time credentials for an agent: mint a 30-day credential once and reuse it, or mint a 300-second tool-bound credential per call. Replay the captured credential at capture + minutes-to-hours: the standing one keeps working, the JIT one is dead. Tool revocation refuses even a fresh JIT credential. Mock engine or your PingOne tenant for the standing pattern (Mock/Real toggle).",
+      "url": "http://localhost:7570",
+      "healthPath": "/api/health",
+      "composeFile": "jit-lab/docker-compose.yml",
+      "composeOverlays": [],
+      "tags": ["agent-controls", "token-security", "simulated"],
+      "notes": "Host-run: ./scripts/run.sh (port 7570). Mock: no tenant, no credentials. Real: PINGONE_* in ~/Development/.env (owner-set). Docker: HOST_PORT=7570 docker compose up --build -d (published on 127.0.0.1 only). composeFile is relative to the demo root."
+    }
+  ]
+}

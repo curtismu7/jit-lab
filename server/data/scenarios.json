@@ -1,0 +1,7 @@
+{
+  "tools": [
+    { "id": "get_balance", "scope": "checking:read" },
+    { "id": "list_transactions", "scope": "checking:read" },
+    { "id": "transfer", "scope": "transfer:write" }
+  ]
+}

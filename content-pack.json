@@ -1,0 +1,106 @@
+{
+  "schema": "demo-content-pack/1",
+  "id": "jit-lab",
+  "title": "JIT Ephemeral Credentials LAB",
+  "version": "0.1.0",
+  "demo": {
+    "id": "jit-lab",
+    "name": "JIT Ephemeral Credentials LAB",
+    "catalog": "D112",
+    "baseUrl": "http://localhost:7570",
+    "doctor": "/api/health",
+    "tags": [
+      "jit",
+      "ephemeral-credentials",
+      "token-lifetime",
+      "tool-binding",
+      "agent-controls",
+      "mock",
+      "real"
+    ]
+  },
+  "glossary": [
+    {
+      "id": "standing",
+      "term": "Standing credential",
+      "definition": "One long-lived token the agent holds for days or weeks. A captured copy stays useful until it expires - the standing risk."
+    },
+    {
+      "id": "jit",
+      "term": "Just-in-time (JIT) credential",
+      "definition": "A credential minted at request time for one call: short TTL, tool-bound scope. A captured copy is dead within minutes."
+    },
+    {
+      "id": "tool-binding",
+      "term": "Tool binding",
+      "definition": "The credential names the one tool it may call. Even within its short life it cannot be replayed against a different tool."
+    },
+    {
+      "id": "ttl",
+      "term": "TTL",
+      "definition": "Time to live: how long a credential works. The lab compares 30 days (standing) against 300 seconds (JIT) at capture + minutes-to-hours."
+    },
+    {
+      "id": "capture",
+      "term": "Captured credential",
+      "definition": "A token an attacker copied at time T. The only question that matters: is it still useful at T + N? Short TTLs shrink that window to nothing."
+    },
+    {
+      "id": "revocation",
+      "term": "Tool revocation",
+      "definition": "Revoking a tool at the issuer refuses even a fresh JIT credential for it - revocation and TTL are independent controls."
+    }
+  ],
+  "cards": [
+    {
+      "id": "tool-get_balance",
+      "label": "get_balance",
+      "description": "scope checking:read",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/"
+      }
+    },
+    {
+      "id": "tool-list_transactions",
+      "label": "list_transactions",
+      "description": "scope checking:read",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/"
+      }
+    },
+    {
+      "id": "tool-transfer",
+      "label": "transfer",
+      "description": "scope transfer:write",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "8693",
+      "title": "RFC 8693 Token Exchange",
+      "url": "https://www.rfc-editor.org/rfc/8693",
+      "kind": "standard",
+      "use": "the delegation the delegated token rides on",
+      "status": "read",
+      "checked": "2026-11-03"
+    },
+    {
+      "id": "9449",
+      "title": "RFC 9449 DPoP",
+      "url": "https://www.rfc-editor.org/rfc/9449",
+      "kind": "standard",
+      "use": "what sender-constraining adds on top of a short TTL",
+      "status": "read",
+      "checked": "2026-11-03"
+    }
+  ]
+}
