@@ -18,9 +18,13 @@ for (const c of await runChecks()) report(c.level, c.id, c.detail);
 try {
   const { createApp, startHttpServer } = await import(pathToFileURL(path.join(root, 'server/src/app.js')));
   const { createHealth } = await import(pathToFileURL(path.join(root, 'server/src/health.js')));
+  const { createMode } = await import(pathToFileURL(path.join(root, 'server/src/mode.js')));
   const health = createHealth({ intervalMs: 3_600_000 });
   await health.ready;
-  const app = createApp({ health });
+  // The cycle is asserted with Real unconfigured (a scrubbed env): the 409 + how-to contract is
+  // checked without touching the owner's credentials. Real-mode mint is proven separately below.
+  const scrubbed = Object.fromEntries(Object.entries(process.env).filter(([k]) => !/^(JIT_LAB_PF|PINGONE_)/.test(k)));
+  const app = createApp({ health, mode: createMode({ env: scrubbed, forceMock: true }) });
   const server = app.listen(0, '127.0.0.1');
   await new Promise((r) => server.once('listening', r));
   const url = `http://127.0.0.1:${server.address().port}/`;
@@ -34,8 +38,8 @@ try {
     const realReason = refused ? (await realUp.json()).message : '';
     const mode = await (await fetch(`${base}/api/mode`, { method: 'POST', headers: h, body: JSON.stringify({ source: 'mock' }) })).json();
     const ok = hj.schema === 'demo-health/1' && hj.state === 'ready' && s.accepted === true && j.accepted === false
-      && refused && /PINGONE_ENVIRONMENT_ID/.test(realReason) && mode.source === 'mock' && mode.realAvailable === false;
-    report(ok ? 'pass' : 'fail', 'http-cycle', ok ? 'health is demo-health/1 and ready, the replay comparison behaves as written (standing accepted, JIT dead at capture + 1 h), Real is refused with the how-to (409) and the toggle returns to Mock' : 'the HTTP cycle did not behave as written');
+      && refused && /Real mode is not configured/.test(realReason) && mode.source === 'mock' && mode.realAvailable === false;
+    report(ok ? 'pass' : 'fail', 'http-cycle', ok ? 'health is demo-health/1 and ready, the replay comparison behaves as written (standing accepted, JIT dead at capture + 1 h), Real is refused with the how-to (409) and the toggle returns to Mock; Real mint is proven separately (doctor mode check).' : 'the HTTP cycle did not behave as written');
   } finally { health.stop(); await new Promise((res) => server.close(res)); }
 } catch { report('fail', 'http-cycle', 'the HTTP cycle could not run'); }
 

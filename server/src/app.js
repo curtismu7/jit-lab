@@ -9,14 +9,17 @@ import { hostCheck, sameOriginWrites } from './safety.js';
 import { createHealth } from './health.js';
 import { createWorld, TOOLS, STANDING_TTL_S, JIT_TTL_S } from './broker.js';
 import { createMode, MODES } from './mode.js';
-import { realStanding } from './realPingOne.js';
+import { realStanding, realSharedPingFederate } from './realPingOne.js';
 import { workspaceId } from './workspace.js';
 import { DIAGRAM_NAMES, loadDiagram } from './diagramData.js';
+import { loadSharedEnv } from './env.js';
+
+const pfConfigured = () => Boolean((process.env.JIT_LAB_PF_CLIENT_SECRET) || (loadSharedEnv().JIT_LAB_PF_CLIENT_SECRET));
 
 const WEB_DIST = process.env.WEB_DIST || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../web/dist');
 const bad = (res, message, status = 400) => res.status(status).json({ error: status === 404 ? 'not_found' : 'bad_request', message });
 export const BANNER = (source) => source === 'real'
-  ? 'REAL mode: the standing-pattern credential comes from YOUR PingOne tenant (owner-configured). Only claims and a sha256/8 hash are shown. The replay comparison is the same engine.'
+  ? 'REAL mode: the standing-pattern credential comes from YOUR issuer (the shared local PingFederate, or your PingOne tenant; owner-configured). Only claims and a sha256/8 hash are shown. The replay comparison is the same engine.'
   : 'MOCK mode. SIMULATED: in-process mock issuer and mock API. Every token is mock and labelled. No tenant, no outbound network.';
 
 export function createApp({ health = createHealth(), mode = createMode(), world = createWorld() } = {}) {
@@ -55,9 +58,13 @@ export function createApp({ health = createHealth(), mode = createMode(), world 
     const kind = req.body?.kind === 'standing' ? 'standing' : req.body?.kind === 'jit' ? 'jit' : null;
     if (!kind) return bad(res, 'kind must be standing or jit');
     try {
-      if (kind === 'real') {
-        const r = await realStanding();
-        return res.json({ banner: BANNER(mode.source()), source: mode.source(), ...r, workspaceId: workspaceId(req) });
+      if (mode.source() === 'real') {
+        if (kind === 'jit') return bad(res, 'Real mints the standing pattern only; the JIT comparison is mock teaching (switch to Mock to mint a JIT credential)');
+        const r = await (pfConfigured() ? realSharedPingFederate() : realStanding());
+        return res.json({
+          banner: BANNER(mode.source()), source: mode.source(), kind: 'standing', reused: false, ...r, workspaceId: workspaceId(req),
+          ttlS: r.ttlSeconds, claims: { ...r.claims, scope: r.claims.scope || 'agent:invoke:identity (PF client restricted scope)' },
+        });
       }
       const out = kind === 'standing' ? await world.standing() : await world.jit(req.body?.tool ?? TOOLS[0].id);
       return res.json({

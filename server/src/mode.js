@@ -7,18 +7,28 @@ import { loadSharedEnv } from './env.js';
 
 export const MODES = ['mock', 'real'];
 
+export const PF_ONLY = (e) => Boolean(e.JIT_LAB_PF_CLIENT_SECRET);
+
 export function realConfigured(env = process.env) {
   const e = { ...env, ...loadSharedEnv() };
-  return Boolean(e.PINGONE_ENVIRONMENT_ID && (e.PINGONE_WORKER_CLIENT_ID || e.PINGONE_WORKER_ID) && (e.PINGONE_WORKER_CLIENT_SECRET || e.PINGONE_WORKER_SECRET));
+  const pingone = Boolean(e.PINGONE_ENVIRONMENT_ID && (e.PINGONE_WORKER_CLIENT_ID || e.PINGONE_WORKER_ID) && (e.PINGONE_WORKER_CLIENT_SECRET || e.PINGONE_WORKER_SECRET));
+  return pingone || PF_ONLY(e);
 }
 
-export const NO_REAL = 'Real mode is not configured. Set PINGONE_ENVIRONMENT_ID and the Worker app client id + secret in ~/Development/.env, then restart the lab. Agents never use live credentials; the owner sets them.';
+export function realReason(env = process.env) {
+  const e = { ...env, ...loadSharedEnv() };
+  if (PF_ONLY(e)) return null;
+  const pingone = Boolean(e.PINGONE_ENVIRONMENT_ID && (e.PINGONE_WORKER_CLIENT_ID || e.PINGONE_WORKER_ID) && (e.PINGONE_WORKER_CLIENT_SECRET || e.PINGONE_WORKER_SECRET));
+  return pingone ? null : 'Real mode is not configured. Either the shared PingFederate credential (JIT_LAB_PF_CLIENT_SECRET in ~/Development/.env, see ping-shared README) or PINGONE_ENVIRONMENT_ID + the Worker app client id + secret. Then restart the lab. Agents never use live credentials; the owner sets them.';
+}
+
+export const NO_REAL = 'Real mode is not configured. Either the shared PingFederate credential (JIT_LAB_PF_CLIENT_SECRET in ~/Development/.env, see ping-shared README) or PINGONE_ENVIRONMENT_ID + the Worker app client id + secret. Then restart the lab. Agents never use live credentials; the owner sets them.';
 
 export function createMode({ env = process.env, forceMock = false } = {}) {
   const canReal = !forceMock && realConfigured(env);
   const state = { source: canReal ? 'real' : 'mock' };
   return {
-    info: () => ({ source: state.source, realAvailable: canReal, realReason: canReal ? null : NO_REAL }),
+    info: () => ({ source: state.source, realAvailable: canReal, realReason: canReal ? null : realReason(env) ?? NO_REAL }),
     source: () => state.source,
     set: (source) => { state.source = source; },
   };

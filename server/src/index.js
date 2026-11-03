@@ -13,7 +13,7 @@ if (!allPassed(checks)) {
 const host = assertBindAllowed(bindHost(), process.env);
 const port = resolvePort();
 const server = createApp().listen(port, host, () => {
-  console.log(`[jit-lab] credentials lab at http://${host}:${port} (Mock mode only; loopback; the decision model is SIMULATED, no LLM, no outbound network)`);
-  console.log(`[jit-lab] health: /api/health | catalog: /api/catalog | judge: POST /api/judge | bakeoff: POST /api/bakeoff`);
+  console.log(`[jit-lab] credentials lab at http://${host}:${port} (loopback; the credentials broker is SIMULATED in Mock mode, no outbound network)`);
+  console.log(`[jit-lab] health: /api/health | catalog: /api/catalog | mint: POST /api/mint | attack: POST /api/attack`);
 });
 for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => server.close(() => process.exit(0)));

@@ -21,7 +21,9 @@ const call = async (app, method, path, body, extraHeaders = {}) => {
 const mk = () => createApp({ mode: createMode({ forceMock: true }) });
 
 test('health returns demo-health/1 ready', async () => {
-  const r = await call(mk(), 'GET', '/api/health');
+  const app = mk();
+  for (let i = 0; i < 20 && (await call(app, 'GET', '/api/health')).json.state !== 'ready'; i++) await new Promise((r) => setTimeout(r, 100));
+  const r = await call(app, 'GET', '/api/health');
   assert.equal(r.json.schema, 'demo-health/1');
   assert.equal(r.json.state, 'ready');
 });

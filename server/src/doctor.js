@@ -4,6 +4,7 @@ import { netguardSelfTest } from './netguard.js';
 import { createWorld, TOOLS, STANDING_TTL_S, JIT_TTL_S } from './broker.js';
 import { cast } from './cast.js';
 import { createMode, realConfigured } from './mode.js';
+import { loadSharedEnv } from './env.js';
 import { DIAGRAM_NAMES, loadDiagram } from './diagramData.js';
 
 export async function runChecks({ env = process.env } = {}) {
@@ -42,10 +43,19 @@ export async function runChecks({ env = process.env } = {}) {
   try { for (const n of DIAGRAM_NAMES) loadDiagram(n); add('diagrams', 'pass', `${DIAGRAM_NAMES.length} diagram(s) are valid diagram-studio/1 data, loaded by name`); }
   catch (e) { add('diagrams', 'fail', e.message); }
   const modeState = createMode({ env });
+  const e = { ...env, ...loadSharedEnv() };
+  const pfReal = Boolean(e.JIT_LAB_PF_CLIENT_SECRET);
   add('mode', 'pass', realConfigured(env)
-    ? 'Mock and Real: your PingOne tenant is configured; the toggle switches without a restart.'
-    : 'Mock and Real toggle present; Real is not configured (set PINGONE_* in ~/Development/.env), so the Real button is disabled with the how-to. Default: Mock.');
-  add('tenant', 'pass', 'mock only by default: no tenant, no credentials, no outbound network (Real makes exactly the configured PingOne call)');
+    ? `Mock and Real: ${pfReal ? 'the shared local PingFederate is configured (rule 20: probed, reused, never spawned)' : 'your PingOne tenant is configured'}; the toggle switches without a restart.`
+    : 'Mock and Real toggle present; Real is not configured (set JIT_LAB_PF_CLIENT_SECRET or the PINGONE_* variables in ~/Development/.env), so the Real button is disabled with the how-to. Default: Mock.');
+  add('tenant', 'pass', 'mock only by default: no tenant, no credentials, no outbound network (Real makes exactly the one configured issuer call)');
+  if (pfReal) {
+    try {
+      const { realSharedPingFederate } = await import('./realPingOne.js');
+      const r = await realSharedPingFederate({ env });
+      add('real-mint', 'pass', `the shared PingFederate mints the standing pattern (sha256/8 only): ${r.issuer} TTL ${r.ttlSeconds}s (rule 20 reuse proven live)`);
+    } catch (err) { add('real-mint', 'fail', `the shared PingFederate mint failed: ${err.message}`); }
+  }
   return checks;
 }
 

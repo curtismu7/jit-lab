@@ -24,7 +24,12 @@ Endpoints: `GET /api/health`, `GET /api/catalog`, `POST /api/mint`, `POST /api/a
 
 ## Settings file
 
-Real mode reads the ONE shared settings file `~/Development/.env`: `PINGONE_ENVIRONMENT_ID`, Worker app client id + secret, optional `JIT_LAB_AGENT_SCOPE`. See `.env.example`.
+Real mode reads the ONE shared settings file `~/Development/.env`. Two issuers, first match wins:
+
+1. **Shared local PingFederate (rule 20)** — `JIT_LAB_PF_CLIENT_SECRET` (client `jit-lab-agent`, scope `agent:invoke:identity`; the one-time recipe is in the `ping-shared` README). Probed, reused, never spawned.
+2. **Your PingOne tenant** — `PINGONE_ENVIRONMENT_ID` + Worker client id + secret.
+
+With neither set the Real button is disabled with a how-to tooltip and Mock answers everything. See `.env.example`.
 
 ## Ports, and what to do if the port is taken
 
