@@ -10,8 +10,15 @@
       "healthPath": "/api/health",
       "composeFile": "jit-lab/docker-compose.yml",
       "composeOverlays": [],
-      "tags": ["agent-controls", "token-security", "simulated"],
+      "tags": [
+        "agent-controls",
+        "token-security",
+        "simulated"
+      ],
       "notes": "Host-run: ./scripts/run.sh (port 7570). Mock: no tenant, no credentials. Real: PINGONE_* in ~/Development/.env (owner-set). Docker: HOST_PORT=7570 docker compose up --build -d (published on 127.0.0.1 only). composeFile is relative to the demo root."
     }
+  ],
+  "pingProducts": [
+    "pingfederate"
   ]
 }
