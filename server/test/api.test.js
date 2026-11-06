@@ -85,3 +85,10 @@ test('cross-origin write is refused', async () => {
   const r = await call(mk(), 'POST', '/api/mint', { kind: 'jit' }, { origin: 'http://evil.invalid' });
   assert.equal(r.status, 403);
 });
+
+test('GET /api/shelf answers the shelf URL (null when unconfigured)', async () => {
+  const r = await call(createApp({ mode: createMode({ forceMock: true }), env: {} }), 'GET', '/api/shelf');
+  assert.equal(r.status, 200);
+  assert.deepEqual(Object.keys(r.json), ['shelfUrl']);
+  assert.equal(r.json.shelfUrl, null);
+});

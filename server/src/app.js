@@ -13,6 +13,7 @@ import { realStanding, realSharedPingFederate } from './realPingOne.js';
 import { workspaceId } from './workspace.js';
 import { DIAGRAM_NAMES, loadDiagram } from './diagramData.js';
 import { loadSharedEnv } from './env.js';
+import { shelfInfo } from './shelfLink.js';
 
 const pfConfigured = () => Boolean((process.env.JIT_LAB_PF_CLIENT_SECRET) || (loadSharedEnv().JIT_LAB_PF_CLIENT_SECRET));
 
@@ -22,7 +23,7 @@ export const BANNER = (source) => source === 'real'
   ? 'REAL mode: the standing-pattern credential comes from YOUR issuer (the shared local PingFederate, or your PingOne tenant; owner-configured). Only claims and a sha256/8 hash are shown. The replay comparison is the same engine.'
   : 'MOCK mode. SIMULATED: in-process mock issuer and mock API. Every token is mock and labelled. No tenant, no outbound network.';
 
-export function createApp({ health = createHealth(), mode = createMode(), world = createWorld() } = {}) {
+export function createApp({ health = createHealth(), mode = createMode(), world = createWorld(), env = process.env } = {}) {
   const app = express();
   app.disable('x-powered-by');
   app.use(hostCheck);
@@ -32,6 +33,7 @@ export function createApp({ health = createHealth(), mode = createMode(), world 
   const api = express.Router();
   api.use(express.json({ limit: '8kb' }));
   api.use('/health', health.router);
+  api.get('/shelf', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json(shelfInfo(env)); });
 
   api.get('/info', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json({ ...mode.info(), banner: BANNER(mode.source()) }); });
   // Rule 19: POST /api/mode with exactly {"source": "mock"|"real"}. Real unconfigured -> 409 with the how-to.

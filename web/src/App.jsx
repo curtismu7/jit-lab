@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { getCatalog, getInfo, requestModeSwitch, resetServer } from "./lib/api.js";
 import ModeToggle from "./components/ModeToggle.jsx";
+import ShelfLink from "./components/ShelfLink.jsx";
 import BrokerTab from "./tabs/BrokerTab.jsx";
 
 export const FALLBACK_BANNER = "MOCK mode. SIMULATED: in-process mock issuer and mock API. Every token is mock and labelled. No tenant, no outbound network.";
@@ -67,6 +68,7 @@ export default function App() {
         <div className="head">
           <h1 className="head__title">JIT Ephemeral Credentials LAB</h1>
           <div className="head__tools">
+            <ShelfLink />
             <ModeToggle info={info} onSelect={onMode} />
             <label className="inline">Theme
               <select value={theme} onChange={(e) => { const t = e.target.value; setTheme(t); try { localStorage.setItem("jitl.theme", t); } catch { /* not remembered */ } }} data-testid="theme">
