@@ -68,7 +68,13 @@ export default function App() {
           <h1 className="head__title">JIT Ephemeral Credentials LAB</h1>
           <div className="head__tools">
             <ModeToggle info={info} onSelect={onMode} />
-            <button type="button" className="btn" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>Theme</button>
+            <label className="inline">Theme
+              <select value={theme} onChange={(e) => { const t = e.target.value; setTheme(t); try { localStorage.setItem("jitl.theme", t); } catch { /* not remembered */ } }} data-testid="theme">
+                <option value="system">Auto</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </label>
             <button type="button" className="btn" aria-pressed={present} onClick={() => setPresent((v) => { write("jitl.present", v ? "0" : "1"); return !v; })}>Present</button>
             <button type="button" className="btn" onClick={async () => { await resetServer(); setHistory([]); setAnnounce("Reset."); }}>Reset</button>
           </div>
