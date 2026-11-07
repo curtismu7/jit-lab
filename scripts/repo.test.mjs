@@ -135,7 +135,7 @@ test('README follows the README standard: title ends in LAB, plain Tier and Repo
   const r = read('README.md');
   assert.match(r.split('\n')[0], /^# .* LAB$/);
   assert.match(r, /^Tier: Demo$/m);
-  assert.match(r, /^Repo: https:\/\/github\.com\/curtismu7\/jit-lab$/m);
+  assert.match(r, /^Repo: https:\/\/github\.com\/curtismu7\/jit-lab-LAB$/m);
   assert.match(r, /^Catalog: D112/m);
   const heads = [...r.matchAll(/^## (.+)$/gm)].map((m) => m[1]);
   const want = ['What is simulated', 'Run from a clone', 'Settings file', 'Ports, and what to do if the port is taken', 'Mock and Real modes', 'Health, doctor and reset', 'Docker', 'Tests', 'Troubleshooting', 'Ownership'];
