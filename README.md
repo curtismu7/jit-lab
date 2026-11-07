@@ -1,7 +1,7 @@
 # JIT Ephemeral Credentials LAB
 
 Tier: Demo
-Repo: https://github.com/ping-sandbox/jit-lab
+Repo: https://github.com/curtismu7/jit-lab
 Catalog: D112
 
 A long-lived agent credential is a standing risk: a captured copy stays useful until it expires. This lab mints both patterns — a 30-day standing credential the agent holds and reuses, and a 300-second tool-bound just-in-time credential minted per call — then replays the captured credential at capture + minutes-to-hours. The standing one keeps being accepted the whole time; the JIT one is dead within minutes. Revoking a tool at the issuer refuses even a fresh JIT credential.
